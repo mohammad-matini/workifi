@@ -17,7 +17,7 @@ struct workifi_state {
         const char *password;
 
         const char *list_id;
-        const char *code_field_id;
+        const char *name_field_id;
         const char *file_field_id;
 
         CURL *http_session;

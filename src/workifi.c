@@ -55,7 +55,7 @@ int workifi_user_approves_config (struct workifi_state *workifi)
         printf("password: %s\n", (workifi->password));
         printf("\n");
         printf("list-id: %s\n", (workifi->list_id));
-        printf("code-field-id: %s\n", (workifi->code_field_id));
+        printf("name-field-id: %s\n", (workifi->name_field_id));
         printf("file-field-id: %s\n", (workifi->file_field_id));
         printf("\n");
         printf("Please check the values above, "
@@ -88,8 +88,8 @@ int workifi_parse_user_config (
 
         workifi->list_id = json_object_get_string(
                 json_object_object_get(config_json, "list-id"));
-        workifi->code_field_id = json_object_get_string(
-                json_object_object_get(config_json, "code-field-id"));
+        workifi->name_field_id = json_object_get_string(
+                json_object_object_get(config_json, "name-field-id"));
         workifi->file_field_id = json_object_get_string(
                 json_object_object_get(config_json, "file-field-id"));
 

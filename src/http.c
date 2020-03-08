@@ -147,9 +147,9 @@ struct json_object *workifi_find_record(struct workifi_state *workifi,
         post_body_size = (
                 strlen(post_body_format) +
                 strlen(workifi->list_id) +
-                strlen(workifi->code_field_id) +
+                strlen(workifi->name_field_id) +
                 strlen(record_name) +
-                strlen(workifi->code_field_id) +
+                strlen(workifi->name_field_id) +
                 strlen(workifi->file_field_id) + 1
                 );
 
@@ -157,8 +157,8 @@ struct json_object *workifi_find_record(struct workifi_state *workifi,
 
         snprintf(post_body, post_body_size, post_body_format,
                  workifi->list_id,
-                 workifi->code_field_id, record_name,
-                 workifi->code_field_id, workifi->file_field_id);
+                 workifi->name_field_id, record_name,
+                 workifi->name_field_id, workifi->file_field_id);
 
         workifi_http_post(workifi, &res, workifi->api_endpoint_data,
                           headers, post_body);
