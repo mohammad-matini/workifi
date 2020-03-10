@@ -6,13 +6,7 @@
 
 #include "workifi.h"
 #include "http.h"
-
-#ifdef _WIN32
-  #define LONG_FORMAT "I64d"
-#else
-  #define LONG_FORMAT "ld"
-#endif
-
+#include "utils.h"
 
 static int workifi_init (struct workifi_state *workifi);
 

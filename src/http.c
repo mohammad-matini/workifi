@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <libgen.h>
 #include <json-c/json.h>
 #include <curl/curl.h>
 
 #include "workifi.h"
 #include "http.h"
 #include "utils.h"
+#include "mime.h"
 
 #include <fcntl.h>
 #include <sys/types.h>
@@ -190,6 +192,7 @@ struct json_object *workifi_upload_file(struct workifi_state *workifi,
 
         curl_slist_free_all(headers);
         headers = NULL;
+
         return array_list_get_idx(
                 json_object_get_array(
                         json_object_object_get(
@@ -213,8 +216,8 @@ int workifi_http_post(
 
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
-                         workifi_curl_write_callback);
-        
+                         workifi_curl_write_cb);
+
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
         curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
 
@@ -250,33 +253,42 @@ int workifi_http_post_file(
 {
         CURLcode curl_code;
         CURL *curl = workifi->http_session;
-        curl_mime *mime1;
-        curl_mimepart *part1;
+        curl_mime *mime;
+        curl_mimepart *part;
 
-        int file_handle;
-        struct stat file_info;
-
+        struct workifi_file file;
         struct workifi_string response_body;
 
         init_workifi_string(&response_body);
 
-        file_handle = open(file_path, O_RDONLY);
-        fstat(file_handle, &file_info);
+        file.file = fopen(file_path, "r");
 
-        mime1 = NULL;
+        if (!file.file) goto file_open_failed;
 
-        mime1 = curl_mime_init(curl);
-        part1 = curl_mime_addpart(mime1);
-        
-        curl_mime_filedata(part1, file_path);
-        curl_mime_name(part1, "upload");
-        
-        curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime1);
+        file.file_handle = fileno(file.file);
+        fstat(file.file_handle, &file.file_info);
+
+        mime = NULL;
+        mime = curl_mime_init(curl);
+
+        part = curl_mime_addpart(mime);
+
+        curl_mime_data_cb(
+                part, (curl_off_t)file.file_info.st_size,
+                workifi_curl_file_read_cb,
+                workifi_curl_file_seek_cb,
+                NULL, &file);
+
+        curl_mime_name(part, "upload");
+        curl_mime_filename(part, basename( (char *) file_path));
+        curl_mime_type(part, workifi_mime_content_type(file_path));
+
+        curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
-                         workifi_curl_write_callback);
-        
+                         workifi_curl_write_cb);
+
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
         curl_easy_setopt(curl, CURLOPT_URL, url);
 
@@ -284,33 +296,35 @@ int workifi_http_post_file(
         curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
 
         curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                         (curl_off_t)file_info.st_size);
+                         (curl_off_t)file.file_info.st_size);
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION,
                          workifi_xferinfo_download_progress);
-        
+
         curl_code = curl_easy_perform(curl);
         printf("\n");           /* new line after printing progress */
 
-        if(curl_code != CURLE_OK) {
-                fprintf(stderr, "connection failed: %s\n",
-                        curl_easy_strerror(curl_code));
-                goto connection_failed;
-        }
+        if(curl_code != CURLE_OK) goto connection_failed;
 
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &res->status);
         res->body = json_tokener_parse(response_body.ptr);
 
         free_workifi_string(&response_body);
 
-        curl_mime_free(mime1);
-        mime1 = NULL;
+        curl_mime_free(mime);
+        mime = NULL;
         curl_easy_reset(curl);
-        close(file_handle);
+        fclose(file.file);
         return (int)curl_code;
 
 connection_failed: {
+                fprintf(stderr, "connection failed: %s\n",
+                        curl_easy_strerror(curl_code));
+                exit(EXIT_FAILURE);
+        }
+file_open_failed: {
+                fprintf(stderr, "failed to open file: %s\n", file_path);
                 exit(EXIT_FAILURE);
         }
 }
@@ -331,8 +345,8 @@ int workifi_http_put(struct workifi_state *workifi,
 
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
-                         workifi_curl_write_callback);
-        
+                         workifi_curl_write_cb);
+
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
