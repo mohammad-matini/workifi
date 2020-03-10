@@ -82,7 +82,7 @@ size_t workifi_curl_file_read_cb(
         void *workifi_file)
 {
         struct workifi_file *file = (struct workifi_file *) workifi_file;
-        return fread(buffer, size, nmemb, file->file);
+	return fread(buffer, size, nmemb, file->file);
 }
 
 int workifi_curl_file_seek_cb(
@@ -98,18 +98,31 @@ int workifi_curl_file_seek_cb(
 #ifdef _WIN32
 FILE *_wfopen_hack(const char *file, const char *mode)
 {
-        wchar_t wfile[260];
-        wchar_t wmode[32];
+	size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
+ 	size_t wmode_size = MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
 
-        MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, 260);
-        MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, 32);
+        wchar_t *wfile = calloc(wfile_size, sizeof(char));
+        wchar_t *wmode = calloc(wmode_size, sizeof(char));
 
-        return _wfopen(wfile, (const wchar_t * restrict)mode);
+        MultiByteToWideChar(CP_UTF8, 0, file, strlen(file), wfile, wfile_size);
+        MultiByteToWideChar(CP_UTF8, 0, mode, strlen(mode), wmode, wmode_size);
+
+	wfile[wfile_size - 1] = '\0';
+	wfile[wfile_size] = '\0';
+	wmode[wmode_size - 1] = '\0';
+	wmode[wmode_size] = '\0';
+
+	FILE *handle;
+	_wfopen_s(&handle, wfile, wmode);
+	free(wfile);
+	free(wmode);
+        return handle;
 }
 
 int _wopen_hack(const char *file, int oflags, ...)
 {
-        wchar_t wfile[260];
+	size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
+        wchar_t *wfile = calloc(wfile_size, sizeof(char));
         int mode = 0;
 
         if(oflags & _O_CREAT)
@@ -120,8 +133,12 @@ int _wopen_hack(const char *file, int oflags, ...)
                 va_end(ap);
         }
 
-        MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, 260);
+        MultiByteToWideChar(CP_UTF8, 0, file, strlen(file), wfile, wfile_size);
+	wfile[wfile_size - 1] = '\0';
+	wfile[wfile_size] = '\0';
 
-        return _wopen(wfile, oflags, mode);
+	int handle = _wopen(wfile, oflags, mode);
+	free(wfile);
+	return handle;
 }
 #endif

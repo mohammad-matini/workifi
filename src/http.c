@@ -261,8 +261,7 @@ int workifi_http_post_file(
 
         init_workifi_string(&response_body);
 
-        file.file = fopen(file_path, "r");
-
+        file.file = fopen(file_path, "rb");
         if (!file.file) goto file_open_failed;
 
         file.file_handle = fileno(file.file);
