@@ -7,7 +7,6 @@ workifi_SOURCES = \
 workifi_CPPFLAGS = $(LIBCURL_CFLAGS)$(LIBJSONC_CFLAGS)
 workifi_LDADD = $(LIBCURL_LIBS)$(LIBJSONC_LIBS)
 
-if MINGW
-workifi_LDFLAGS = -Wl,--no-undefined,--enable-runtime-pseudo-reloc
-LIBS += -lws2_32 -lz -lssp
+if WINDOWS
+LIBS += -lgdi32 -lcrypt32 -lz -lws2_32 -lssp
 endif

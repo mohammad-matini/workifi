@@ -86,8 +86,10 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = @build@
+host_triplet = @host@
 bin_PROGRAMS = workifi$(EXEEXT)
-@MINGW_TRUE@am__append_1 = -lws2_32 -lz -lssp
+@WINDOWS_TRUE@am__append_1 = -lgdi32 -lcrypt32 -lz -lws2_32 -lssp
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -105,11 +107,10 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_workifi_OBJECTS = src/workifi-workifi.$(OBJEXT) \
-	src/workifi-http.$(OBJEXT) src/workifi-utils.$(OBJEXT)
+	src/workifi-http.$(OBJEXT) src/workifi-utils.$(OBJEXT) \
+	src/workifi-mime.$(OBJEXT)
 workifi_OBJECTS = $(am_workifi_OBJECTS)
 workifi_DEPENDENCIES = $(LIBCURL_LIBS)$(LIBJSONC_LIBS)
-workifi_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(workifi_LDFLAGS) \
-	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -126,7 +127,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = src/$(DEPDIR)/workifi-http.Po \
-	src/$(DEPDIR)/workifi-utils.Po \
+	src/$(DEPDIR)/workifi-mime.Po src/$(DEPDIR)/workifi-utils.Po \
 	src/$(DEPDIR)/workifi-workifi.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -175,7 +176,7 @@ CTAGS = ctags
 CSCOPE = cscope
 AM_RECURSIVE_TARGETS = cscope
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in compile \
-	depcomp install-sh missing
+	config.guess config.sub depcomp install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -249,14 +250,22 @@ am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
+build = @build@
 build_alias = @build_alias@
+build_cpu = @build_cpu@
+build_os = @build_os@
+build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+host = @host@
 host_alias = @host_alias@
+host_cpu = @host_cpu@
+host_os = @host_os@
+host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -281,13 +290,13 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 workifi_SOURCES = \
-    src/workifi.h src/workifi.c \
-    src/http.h src/http.c \
-    src/utils.h src/utils.c
+	src/workifi.h src/workifi.c \
+	src/http.h src/http.c \
+	src/utils.h src/utils.c \
+	src/mime.h src/mime.c
 
 workifi_CPPFLAGS = $(LIBCURL_CFLAGS)$(LIBJSONC_CFLAGS)
 workifi_LDADD = $(LIBCURL_LIBS)$(LIBJSONC_LIBS)
-@MINGW_TRUE@workifi_LDFLAGS = -Wl,--no-undefined,--enable-runtime-pseudo-reloc
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -395,10 +404,12 @@ src/workifi-http.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/workifi-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/workifi-mime.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 
 workifi$(EXEEXT): $(workifi_OBJECTS) $(workifi_DEPENDENCIES) $(EXTRA_workifi_DEPENDENCIES) 
 	@rm -f workifi$(EXEEXT)
-	$(AM_V_CCLD)$(workifi_LINK) $(workifi_OBJECTS) $(workifi_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(workifi_OBJECTS) $(workifi_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -408,6 +419,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/workifi-http.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/workifi-mime.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/workifi-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/workifi-workifi.Po@am__quote@ # am--include-marker
 
@@ -474,6 +486,20 @@ src/workifi-utils.obj: src/utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/utils.c' object='src/workifi-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(workifi_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/workifi-utils.obj `if test -f 'src/utils.c'; then $(CYGPATH_W) 'src/utils.c'; else $(CYGPATH_W) '$(srcdir)/src/utils.c'; fi`
+
+src/workifi-mime.o: src/mime.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(workifi_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/workifi-mime.o -MD -MP -MF src/$(DEPDIR)/workifi-mime.Tpo -c -o src/workifi-mime.o `test -f 'src/mime.c' || echo '$(srcdir)/'`src/mime.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/workifi-mime.Tpo src/$(DEPDIR)/workifi-mime.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/mime.c' object='src/workifi-mime.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(workifi_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/workifi-mime.o `test -f 'src/mime.c' || echo '$(srcdir)/'`src/mime.c
+
+src/workifi-mime.obj: src/mime.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(workifi_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/workifi-mime.obj -MD -MP -MF src/$(DEPDIR)/workifi-mime.Tpo -c -o src/workifi-mime.obj `if test -f 'src/mime.c'; then $(CYGPATH_W) 'src/mime.c'; else $(CYGPATH_W) '$(srcdir)/src/mime.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/workifi-mime.Tpo src/$(DEPDIR)/workifi-mime.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/mime.c' object='src/workifi-mime.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(workifi_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/workifi-mime.obj `if test -f 'src/mime.c'; then $(CYGPATH_W) 'src/mime.c'; else $(CYGPATH_W) '$(srcdir)/src/mime.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -746,6 +772,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 		-rm -f src/$(DEPDIR)/workifi-http.Po
+	-rm -f src/$(DEPDIR)/workifi-mime.Po
 	-rm -f src/$(DEPDIR)/workifi-utils.Po
 	-rm -f src/$(DEPDIR)/workifi-workifi.Po
 	-rm -f Makefile
@@ -796,6 +823,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
 		-rm -f src/$(DEPDIR)/workifi-http.Po
+	-rm -f src/$(DEPDIR)/workifi-mime.Po
 	-rm -f src/$(DEPDIR)/workifi-utils.Po
 	-rm -f src/$(DEPDIR)/workifi-workifi.Po
 	-rm -f Makefile
