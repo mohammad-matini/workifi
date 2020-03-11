@@ -45,14 +45,24 @@ int workifi_user_approves_config (struct workifi_state *workifi)
 {
         char response;
 
-        writelog("tenant: %s\n", (workifi->tenant));
-        writelog("username: %s\n", (workifi->username));
-        writelog("password: %s\n", (workifi->password));
+        writelog("tenant: %s\n", workifi->tenant);
+        writelog("username: %s\n", workifi->username);
+        writelog("password: %s\n", workifi->password);
         writelog("\n");
-        writelog("list-id: %s\n", (workifi->list_id));
-        writelog("name-field-id: %s\n", (workifi->name_field_id));
-        writelog("file-field-id: %s\n", (workifi->file_field_id));
+        writelog("list-id: %s\n", workifi->list_id);
+        writelog("name-field-id: %s\n", workifi->name_field_id);
+        writelog("file-field-id: %s\n", workifi->file_field_id);
         writelog("\n");
+
+        if (!(workifi->tenant && workifi->username &&
+              workifi->password && workifi->list_id &&
+              workifi->name_field_id && workifi->file_field_id)) {
+                writelog("ERROR: Missing required configurations, "
+                         "please check the values above and fix them "
+                         "in config.json, then try again.\n");
+                exit(EXIT_FAILURE);
+        }
+
         writelog("Please check the values above, "
                "then type \"yes\" to continue,\n"
                "or type \"no\" to cancel, then press enter.\n");
@@ -181,8 +191,7 @@ int workifi_process_files(struct workifi_state *workifi)
                 snprintf(file_path, file_path_size, "%s%s",
                          file_path_prefix, file_name);
 
-                writelog("================================="
-                       "===============================\n");
+                writelog(WORKIFI_SEPERATOR);
 
                 writelog("Record Number: %"LONG_FORMAT"\n"
                        "Record Name: %s\n"
@@ -207,12 +216,20 @@ int workifi_process_files(struct workifi_state *workifi)
                         json_object_get_array(file_list);
 
                 if (file_is_already_uploaded(file_list_array, file_name)) {
-                        writelog("%s || File already uploaded\n", file_name);
+                        writelog("File already uploaded.\n", file_name);
                         continue;
                 }
 
                 struct json_object *uploaded_file_raw_metadata =
                         workifi_upload_file(workifi, file_path);
+
+                if (!uploaded_file_raw_metadata) {
+                        writelog("ERROR: Could not read file for upload! "
+                                 "Check the file name, and make\nsure that it "
+                                 "can be opened.\n",
+                                 file_path);
+                        continue;
+                }
 
                 struct json_object *uploaded_file_metadata =
                         format_file_metadata(uploaded_file_raw_metadata);
@@ -227,6 +244,7 @@ int workifi_process_files(struct workifi_state *workifi)
                         json_object_object_get(record, "_id"));
 
                 workifi_update_record(workifi, record_id, record_update);
+                writelog("File uploaded successfully\n");
 
                 free(file_path);
         }

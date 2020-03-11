@@ -21,6 +21,20 @@ __declspec( dllexport ) int _wopen_hack(const char *file, int oflags, ...);
 #define LONG_FORMAT "ld"
 #endif
 
+#define WORKIFI_GREETING                                                \
+        "\n=====================================================================\n" \
+        "\n\nmm      mm                     mm           ##        mmmm      ##    \n" \
+        "##      ##                     ##           \"\"       ##\"\"\"      \"\"    \n" \
+        "\"#m ## m#\"  m####m    ##m####  ## m##\"    ####     #######    ####    \n" \
+        " ## ## ##  ##\"  \"##   ##\"      ##m##        ##       ##         ##    \n" \
+        " ###\"\"###  ##    ##   ##       ##\"##m       ##       ##         ##    \n" \
+        " ###  ###  \"##mm##\"   ##       ##  \"#m   mmm##mmm    ##      mmm##mmm \n" \
+        " \"\"\"  \"\"\"    \"\"\"\"     \"\"       \"\"   \""          \
+        "\"\"  \"\"\"\"\"\"\"\"    \"\"      \"\"\"\"\"\"\"\" \n\n\n"       \
+        "================ The Workiom Automated File Uploader ================\n\n\n"
+#define WORKIFI_SEPERATOR \
+        "=====================================================================\n"
+
 struct workifi_string {
         char *ptr;
         size_t len;
@@ -29,6 +43,7 @@ struct workifi_string {
 struct workifi_file {
         FILE *file;
         int file_handle;
+        const char *path;
         struct stat file_info;
 };
 

@@ -8,6 +8,9 @@
 
 #include "utils.h"
 
+static void workifi_greeting() {
+        writelog(WORKIFI_GREETING);
+}
 
 void init_workifi_string(struct workifi_string *s)
 {
@@ -135,7 +138,9 @@ int initialize_logger () {
                 exit(EXIT_FAILURE);
         }
 
-        writelog("==== Workifi Start  %s ====\n", file_path);
+        workifi_greeting();
+        writelog("Logging progress to %s\n", file_path);
+
         return 0;
 }
 

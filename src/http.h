@@ -1,6 +1,8 @@
 #ifndef WORKIFI_HTTP_H
 #define WORKIFI_HTTP_H
 
+#include "utils.h"
+
 struct workifi_response {
         long status;
         struct json_object *body;
@@ -30,12 +32,13 @@ int workifi_http_post(
         struct curl_slist *headers,
         const char *body);
 
+
 int workifi_http_post_file(
         struct workifi_state *workifi,
         struct workifi_response *res,
         const char *url,
         struct curl_slist *headers,
-        const char *file_path);
+        struct workifi_file *file);
 
 int workifi_http_put(
         struct workifi_state *workifi,
