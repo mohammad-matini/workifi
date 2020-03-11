@@ -39,9 +39,9 @@ int workifi_xferinfo_download_progress(
 {
         static int animation_loop_counter = 0;
         const char *animation_frames[] = {
-                "\r [<o>    ]", "\r [ <o>   ]", "\r [  <o>  ]",
-                "\r [   <o> ]", "\r [    <o>]", "\r [   <o> ]",
-                "\r [  <o>  ]", "\r [ <o>   ]", "\r [<o>    ]",
+                "[<o>    ]", "[ <o>   ]", "[  <o>  ]",
+                "[   <o> ]", "[    <o>]", "[   <o> ]",
+                "[  <o>  ]", "[ <o>   ]", "[<o>    ]",
         };
 
         fprintf(stderr, "%s", animation_frames[animation_loop_counter]);
@@ -51,7 +51,7 @@ int workifi_xferinfo_download_progress(
         fprintf(stderr,
                 "  Progress: %"LONG_FORMAT"%%  :"
                 ":  uploaded %"LONG_FORMAT" MiB out of "
-                "%"LONG_FORMAT" MiB",
+                "%"LONG_FORMAT" MiB\r",
                 ultotal <= 0 ? 0 : ((ulnow * 100) / ultotal),
                 (ulnow / (1024*1024)), ultotal / (1024*1024));
 
