@@ -128,7 +128,11 @@ int initialize_logger () {
 
         struct stat st = {0};
         if (stat("./logs", &st) == -1) {
+                #ifdef _WIN32
+                mkdir("./logs");
+                #else
                 mkdir("./logs", 0700);
+                #endif
         }
 
         log_file = fopen(file_path, "a+");
