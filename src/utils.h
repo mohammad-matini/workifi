@@ -60,4 +60,8 @@ int workifi_curl_file_seek_cb(
         curl_off_t offset,
         int origin);
 
+int initialize_logger ();
+
+void writelog(char const *fmt, ...);
+
 #endif  /* WORKIFI_UTILS_H */

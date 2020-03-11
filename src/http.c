@@ -226,7 +226,7 @@ int workifi_http_post(
         curl_code = curl_easy_perform(curl);
 
         if(curl_code != CURLE_OK) {
-                fprintf(stderr, "connection failed: %s\n",
+                writelog("connection failed: %s\n",
                         curl_easy_strerror(curl_code));
                 goto connection_failed;
         }
@@ -302,7 +302,7 @@ int workifi_http_post_file(
                          workifi_xferinfo_download_progress);
 
         curl_code = curl_easy_perform(curl);
-        printf("\n");           /* new line after printing progress */
+        writelog("\n");           /* new line after printing progress */
 
         if(curl_code != CURLE_OK) goto connection_failed;
 
@@ -318,12 +318,12 @@ int workifi_http_post_file(
         return (int)curl_code;
 
 connection_failed: {
-                fprintf(stderr, "connection failed: %s\n",
+                writelog("connection failed: %s\n",
                         curl_easy_strerror(curl_code));
                 exit(EXIT_FAILURE);
         }
 file_open_failed: {
-                fprintf(stderr, "failed to open file: %s\n", file_path);
+                writelog("failed to open file: %s\n", file_path);
                 exit(EXIT_FAILURE);
         }
 }
@@ -355,7 +355,7 @@ int workifi_http_put(struct workifi_state *workifi,
         curl_code = curl_easy_perform(curl);
 
         if(curl_code != CURLE_OK) {
-                fprintf(stderr, "connection failed: %s\n",
+                writelog("connection failed: %s\n",
                         curl_easy_strerror(curl_code));
                 goto connection_failed;
         }

@@ -20,13 +20,14 @@ static int file_is_already_uploaded(
 int main ()
 {
         struct workifi_state workifi;
+
         workifi_init(&workifi);
 
-        printf("\nFound %"LONG_FORMAT" records to upload\n\n",
+        writelog("\nFound %"LONG_FORMAT" records to upload\n\n",
                array_list_length(workifi.file_list));
 
         if (!workifi_user_approves_config(&workifi)) {
-                printf("okay, operation cancelled.\n");
+                writelog("okay, operation cancelled.\n");
                 return EXIT_SUCCESS;
         }
 
@@ -44,22 +45,22 @@ int workifi_user_approves_config (struct workifi_state *workifi)
 {
         char response;
 
-        printf("tenant: %s\n", (workifi->tenant));
-        printf("username: %s\n", (workifi->username));
-        printf("password: %s\n", (workifi->password));
-        printf("\n");
-        printf("list-id: %s\n", (workifi->list_id));
-        printf("name-field-id: %s\n", (workifi->name_field_id));
-        printf("file-field-id: %s\n", (workifi->file_field_id));
-        printf("\n");
-        printf("Please check the values above, "
+        writelog("tenant: %s\n", (workifi->tenant));
+        writelog("username: %s\n", (workifi->username));
+        writelog("password: %s\n", (workifi->password));
+        writelog("\n");
+        writelog("list-id: %s\n", (workifi->list_id));
+        writelog("name-field-id: %s\n", (workifi->name_field_id));
+        writelog("file-field-id: %s\n", (workifi->file_field_id));
+        writelog("\n");
+        writelog("Please check the values above, "
                "then type \"yes\" to continue,\n"
                "or type \"no\" to cancel, then press enter.\n");
-        printf("(yes/no) ? :: ");
+        writelog("(yes/no) ? :: ");
 
         response = getchar();
 
-        printf("\n");
+        writelog("\n");
 
         if (response == 'Y' || response == 'y') return 1;
         else return 0;
@@ -143,8 +144,8 @@ struct json_object *workifi_load_json_file (const char *file_path)
         return parsed_json;
 
 failed_to_read_file: {
-                fprintf(stderr, "Failed to read JSON file!\n");
-                fprintf(stderr, "%s", file_path);
+                writelog("Failed to read JSON file!\n");
+                writelog("%s", file_path);
                 exit(EXIT_FAILURE);
         }
 }
@@ -180,10 +181,10 @@ int workifi_process_files(struct workifi_state *workifi)
                 snprintf(file_path, file_path_size, "%s%s",
                          file_path_prefix, file_name);
 
-                printf("================================="
+                writelog("================================="
                        "===============================\n");
 
-                printf("Record Number: %"LONG_FORMAT"\n"
+                writelog("Record Number: %"LONG_FORMAT"\n"
                        "Record Name: %s\n"
                        "File Name: %s\n"
                        "Uploading...\n",
@@ -193,7 +194,7 @@ int workifi_process_files(struct workifi_state *workifi)
                         workifi_find_record(workifi, record_name);
 
                 if (!record) {
-                        printf("ERROR: Record not found online!\n");
+                        writelog("ERROR: Record not found online!\n");
                         continue;
                 }
 
@@ -206,7 +207,7 @@ int workifi_process_files(struct workifi_state *workifi)
                         json_object_get_array(file_list);
 
                 if (file_is_already_uploaded(file_list_array, file_name)) {
-                        printf("%s || File already uploaded\n", file_name);
+                        writelog("%s || File already uploaded\n", file_name);
                         continue;
                 }
 
@@ -234,13 +235,14 @@ int workifi_process_files(struct workifi_state *workifi)
 
 static int workifi_init (struct workifi_state *workifi)
 {
+        initialize_logger();
         workifi->server_url = "https://api.workiom.com";
 
         curl_global_init(CURL_GLOBAL_ALL);
         workifi->http_session = curl_easy_init();
 
         if (!workifi->http_session) {
-                fprintf(stderr, "ERROR: libcurl initialization failure");
+                writelog("ERROR: libcurl initialization failure");
                 exit(EXIT_FAILURE);
         }
 

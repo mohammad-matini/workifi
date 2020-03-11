@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
+#include <time.h>
 #include <curl/curl.h>
 
 #include "utils.h"
@@ -12,7 +14,7 @@ void init_workifi_string(struct workifi_string *s)
         s->len = 0;
         s->ptr = malloc(s->len+1);
         if (s->ptr == NULL) {
-                fprintf(stderr, "malloc() failed\n");
+                writelog("malloc() failed\n");
                 exit(EXIT_FAILURE);
         }
         s->ptr[0] = '\0';
@@ -64,7 +66,7 @@ size_t workifi_curl_write_cb(
         s->ptr = realloc(s->ptr, new_len+1);
 
         if (s->ptr == NULL) {
-                fprintf(stderr, "realloc() failed\n");
+                writelog("realloc() failed\n");
                 exit(EXIT_FAILURE);
         }
         memcpy(s->ptr+s->len, ptr, size*nmemb);
@@ -82,7 +84,7 @@ size_t workifi_curl_file_read_cb(
         void *workifi_file)
 {
         struct workifi_file *file = (struct workifi_file *) workifi_file;
-	return fread(buffer, size, nmemb, file->file);
+        return fread(buffer, size, nmemb, file->file);
 }
 
 int workifi_curl_file_seek_cb(
@@ -95,11 +97,64 @@ int workifi_curl_file_seek_cb(
                 CURL_SEEKFUNC_OK : CURL_SEEKFUNC_FAIL;
 }
 
+static FILE *log_file;
+
+int initialize_logger () {
+        const char *file_path_prefix = "./logs/";
+        const char *file_path_postfix = ".log";
+
+        char current_datetime_iso_string[sizeof "2020-03-11T02:07:27Z"];
+
+        char file_path[
+                sizeof  "./logs/" +
+                sizeof "2020-03-11T02:07:27Z" +
+                sizeof ".log" + 1
+                ];
+
+        time_t now;
+        time(&now);
+
+        strftime(current_datetime_iso_string,
+                 sizeof current_datetime_iso_string,
+                 "%FT%TZ", gmtime(&now));
+
+        snprintf(file_path, sizeof file_path, "%s%s%s",
+                 file_path_prefix,
+                 current_datetime_iso_string ,
+                 file_path_postfix);
+
+        struct stat st = {0};
+        if (stat("./logs", &st) == -1) {
+                mkdir("./logs", 0700);
+        }
+
+        log_file = fopen(file_path, "a+");
+
+        if (!log_file) {
+                printf("ERROR: could not initialize log file: %s", file_path);
+                exit(EXIT_FAILURE);
+        }
+
+        writelog("==== Workifi Start  %s ====\n", file_path);
+        return 0;
+}
+
+void writelog(char const *fmt, ...) {
+        va_list ap;
+        va_start(ap, fmt);
+        vprintf(fmt, ap);
+        va_end(ap);
+        va_start(ap, fmt);
+        vfprintf(log_file, fmt, ap);
+        fflush(log_file);
+        va_end(ap);
+}
+
 #ifdef _WIN32
 FILE *_wfopen_hack(const char *file, const char *mode)
 {
-	size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
- 	size_t wmode_size = MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
+        size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
+        size_t wmode_size = MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
 
         wchar_t *wfile = calloc(wfile_size, sizeof(char));
         wchar_t *wmode = calloc(wmode_size, sizeof(char));
@@ -107,21 +162,21 @@ FILE *_wfopen_hack(const char *file, const char *mode)
         MultiByteToWideChar(CP_UTF8, 0, file, strlen(file), wfile, wfile_size);
         MultiByteToWideChar(CP_UTF8, 0, mode, strlen(mode), wmode, wmode_size);
 
-	wfile[wfile_size - 1] = '\0';
-	wfile[wfile_size] = '\0';
-	wmode[wmode_size - 1] = '\0';
-	wmode[wmode_size] = '\0';
+        wfile[wfile_size - 1] = '\0';
+        wfile[wfile_size] = '\0';
+        wmode[wmode_size - 1] = '\0';
+        wmode[wmode_size] = '\0';
 
-	FILE *handle;
-	_wfopen_s(&handle, wfile, wmode);
-	free(wfile);
-	free(wmode);
+        FILE *handle;
+        _wfopen_s(&handle, wfile, wmode);
+        free(wfile);
+        free(wmode);
         return handle;
 }
 
 int _wopen_hack(const char *file, int oflags, ...)
 {
-	size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
+        size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
         wchar_t *wfile = calloc(wfile_size, sizeof(char));
         int mode = 0;
 
@@ -134,11 +189,11 @@ int _wopen_hack(const char *file, int oflags, ...)
         }
 
         MultiByteToWideChar(CP_UTF8, 0, file, strlen(file), wfile, wfile_size);
-	wfile[wfile_size - 1] = '\0';
-	wfile[wfile_size] = '\0';
+        wfile[wfile_size - 1] = '\0';
+        wfile[wfile_size] = '\0';
 
-	int handle = _wopen(wfile, oflags, mode);
-	free(wfile);
-	return handle;
+        int handle = _wopen(wfile, oflags, mode);
+        free(wfile);
+        return handle;
 }
 #endif
