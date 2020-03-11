@@ -105,23 +105,26 @@ static FILE *log_file;
 int initialize_logger () {
         const char *file_path_prefix = "./logs/";
         const char *file_path_postfix = ".log";
+        const char *iso_datetime_example = "2020-03-11T02:07:27";
 
-        char current_datetime_iso_string[sizeof "2020-03-11T02:07:27Z"];
+        size_t file_path_size = (
+                strlen(file_path_prefix) +
+                strlen(iso_datetime_example) +
+                strlen(file_path_postfix) + 1
+                );
 
-        char file_path[
-                sizeof  "./logs/" +
-                sizeof "2020-03-11T02:07:27Z" +
-                sizeof ".log" + 1
-                ];
+        char *current_datetime_iso_string =
+                calloc(strlen(iso_datetime_example), sizeof(char));
+        char *file_path = calloc(file_path_size ,sizeof(char));
 
         time_t now;
         time(&now);
 
         strftime(current_datetime_iso_string,
-                 sizeof current_datetime_iso_string,
+                 strlen(iso_datetime_example),
                  "%Y-%m-%dT%H:%M:%S", localtime(&now));
 
-        snprintf(file_path, sizeof file_path, "%s%s%s",
+        snprintf(file_path, file_path_size, "%s%s%s",
                  file_path_prefix,
                  current_datetime_iso_string ,
                  file_path_postfix);
@@ -168,13 +171,11 @@ FILE *_wfopen_hack(const char *file, const char *mode)
         wchar_t *wfile = calloc(wfile_size, sizeof(char));
         wchar_t *wmode = calloc(wmode_size, sizeof(char));
 
-        MultiByteToWideChar(CP_UTF8, 0, file, strlen(file), wfile, wfile_size);
-        MultiByteToWideChar(CP_UTF8, 0, mode, strlen(mode), wmode, wmode_size);
+        MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, wfile_size);
+        MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, wmode_size);
 
-        wfile[wfile_size - 1] = '\0';
-        wfile[wfile_size] = '\0';
-        wmode[wmode_size - 1] = '\0';
-        wmode[wmode_size] = '\0';
+        wfile[wfile_size - 1] = wfile[wfile_size] = '\0';
+        wmode[wmode_size - 1] = wmode[wmode_size] = '\0';
 
         FILE *handle;
         _wfopen_s(&handle, wfile, wmode);
@@ -197,7 +198,7 @@ int _wopen_hack(const char *file, int oflags, ...)
                 va_end(ap);
         }
 
-        MultiByteToWideChar(CP_UTF8, 0, file, strlen(file), wfile, wfile_size);
+        MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, wfile_size);
         wfile[wfile_size - 1] = '\0';
         wfile[wfile_size] = '\0';
 
