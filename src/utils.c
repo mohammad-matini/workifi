@@ -119,7 +119,7 @@ int initialize_logger () {
 
         strftime(current_datetime_iso_string,
                  sizeof current_datetime_iso_string,
-                 "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+                 "%Y-%m-%dT%H:%M:%S", localtime(&now));
 
         snprintf(file_path, sizeof file_path, "%s%s%s",
                  file_path_prefix,
