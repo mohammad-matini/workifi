@@ -122,7 +122,7 @@ int initialize_logger () {
 
         strftime(current_datetime_iso_string,
                  strlen(iso_datetime_example) + 1,
-                 "%Y-%m-%dT%H:%M:%S", localtime(&now));
+                 "%Y-%m-%d-%H-%M-%S", localtime(&now));
 
         snprintf(file_path, file_path_size + 1, "%s%s%s",
                  file_path_prefix,
@@ -141,7 +141,7 @@ int initialize_logger () {
         log_file = fopen(file_path, "a+");
 
         if (!log_file) {
-                printf("ERROR: could not initialize log file: %s", file_path);
+                printf("ERROR: could not initialize log file: %s\n", file_path);
                 exit(EXIT_FAILURE);
         }
 
