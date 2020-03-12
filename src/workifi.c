@@ -54,11 +54,14 @@ int workifi_user_approves_config (struct workifi_state *workifi)
         writelog("file-field-id: %s\n", workifi->file_field_id);
         writelog("\n");
 
-        if (!(workifi->tenant && workifi->username &&
-              workifi->password && workifi->list_id &&
-              workifi->name_field_id && workifi->file_field_id)) {
+        if (!(workifi->tenant && strlen(workifi->tenant) > 0 &&
+              workifi->username && strlen(workifi->username) > 0 &&
+              workifi->password && strlen(workifi->password) > 0 && 
+	      workifi->list_id && strlen(workifi->list_id) > 0 &&
+              workifi->name_field_id && strlen(workifi->name_field_id) > 0 && 
+	      workifi->file_field_id && strlen(workifi->file_field_id) > 0)) {
                 writelog("ERROR: Missing required configurations, "
-                         "please check the values above and fix them "
+                         "please check the values above\nand fix them "
                          "in config.json, then try again.\n");
                 exit(EXIT_FAILURE);
         }
