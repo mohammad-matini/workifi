@@ -110,21 +110,21 @@ int initialize_logger () {
         size_t file_path_size = (
                 strlen(file_path_prefix) +
                 strlen(iso_datetime_example) +
-                strlen(file_path_postfix) + 1
+                strlen(file_path_postfix)
                 );
 
         char *current_datetime_iso_string =
-                calloc(strlen(iso_datetime_example), sizeof(char));
-        char *file_path = calloc(file_path_size ,sizeof(char));
+		calloc(strlen(iso_datetime_example) + 1, sizeof(char));
+        char *file_path = calloc(file_path_size + 1, sizeof(char));
 
         time_t now;
         time(&now);
 
         strftime(current_datetime_iso_string,
-                 strlen(iso_datetime_example),
+                 strlen(iso_datetime_example) + 1,
                  "%Y-%m-%dT%H:%M:%S", localtime(&now));
 
-        snprintf(file_path, file_path_size, "%s%s%s",
+        snprintf(file_path, file_path_size + 1, "%s%s%s",
                  file_path_prefix,
                  current_datetime_iso_string ,
                  file_path_postfix);
@@ -168,14 +168,11 @@ FILE *_wfopen_hack(const char *file, const char *mode)
         size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
         size_t wmode_size = MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
 
-        wchar_t *wfile = calloc(wfile_size, sizeof(char));
-        wchar_t *wmode = calloc(wmode_size, sizeof(char));
+        wchar_t *wfile = calloc(wfile_size, sizeof(wchar_t));
+        wchar_t *wmode = calloc(wmode_size, sizeof(wchar_t));
 
         MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, wfile_size);
         MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, wmode_size);
-
-        wfile[wfile_size - 1] = wfile[wfile_size] = '\0';
-        wmode[wmode_size - 1] = wmode[wmode_size] = '\0';
 
         FILE *handle;
         _wfopen_s(&handle, wfile, wmode);
@@ -187,7 +184,7 @@ FILE *_wfopen_hack(const char *file, const char *mode)
 int _wopen_hack(const char *file, int oflags, ...)
 {
         size_t wfile_size = MultiByteToWideChar(CP_UTF8, 0, file, -1, NULL, 0);
-        wchar_t *wfile = calloc(wfile_size, sizeof(char));
+        wchar_t *wfile = calloc(wfile_size, sizeof(wchar_t));
         int mode = 0;
 
         if(oflags & _O_CREAT)
@@ -199,8 +196,6 @@ int _wopen_hack(const char *file, int oflags, ...)
         }
 
         MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, wfile_size);
-        wfile[wfile_size - 1] = '\0';
-        wfile[wfile_size] = '\0';
 
         int handle = _wopen(wfile, oflags, mode);
         free(wfile);
