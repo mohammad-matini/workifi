@@ -207,6 +207,7 @@ int workifi_process_files(struct workifi_state *workifi)
 
                 if (!record) {
                         writelog("ERROR: Record not found online!\n");
+                        free(file_path);
                         continue;
                 }
 
@@ -220,6 +221,7 @@ int workifi_process_files(struct workifi_state *workifi)
 
                 if (file_is_already_uploaded(file_list_array, file_name)) {
                         writelog("File already uploaded.\n", file_name);
+                        free(file_path);
                         continue;
                 }
 
@@ -231,6 +233,7 @@ int workifi_process_files(struct workifi_state *workifi)
                                  "Check the file name, and make\nsure that it "
                                  "can be opened.\n",
                                  file_path);
+                        free(file_path);
                         continue;
                 }
 

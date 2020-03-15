@@ -148,6 +148,9 @@ int initialize_logger () {
         workifi_greeting();
         writelog("Logging progress to %s\n", file_path);
 
+        free(current_datetime_iso_string);
+        free(file_path);
+
         return 0;
 }
 

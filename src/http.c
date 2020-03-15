@@ -165,6 +165,7 @@ struct json_object *workifi_find_record(struct workifi_state *workifi,
         workifi_http_post(workifi, &res, workifi->api_endpoint_data,
                           headers, post_body);
 
+        curl_slist_free_all(headers);
         free(post_body);
 
         return array_list_get_idx(
