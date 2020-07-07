@@ -158,7 +158,7 @@ struct json_object *workifi_load_json_file (const char *file_path)
 
 failed_to_read_file: {
                 writelog("Failed to read JSON file!\n");
-                writelog("%s", file_path);
+                writelog("%s\n", file_path);
                 exit(EXIT_FAILURE);
         }
 }
@@ -266,7 +266,7 @@ static int workifi_init (struct workifi_state *workifi)
         workifi->http_session = curl_easy_init();
 
         if (!workifi->http_session) {
-                writelog("ERROR: libcurl initialization failure");
+                writelog("ERROR: libcurl initialization failure\n");
                 exit(EXIT_FAILURE);
         }
 
