@@ -1,4 +1,4 @@
-#ifndef WORKIFI__H
+#ifndef WORKIFI_H
 #define WORKIFI_H
 
 #define WORKIFI_SERVER_CONFIG_PATH "urls.json"
@@ -41,4 +41,4 @@ int workifi_parse_server_config (
         struct workifi_state *workifi,
         const char *config_path);
 
-#endif /* WORKIFI__H */
+#endif /* WORKIFI_H */
