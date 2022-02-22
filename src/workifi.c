@@ -112,6 +112,8 @@ int workifi_parse_server_config (
         struct json_object *config_json;
         config_json = workifi_load_json_file(config_path);
 
+        workifi->server_url = json_object_get_string(
+                json_object_object_get(config_json, "base-url"));
         workifi->api_endpoint_auth = json_object_get_string(
                 json_object_object_get(config_json, "auth-url"));
         workifi->api_endpoint_data = json_object_get_string(
@@ -260,7 +262,6 @@ int workifi_process_files(struct workifi_state *workifi)
 static int workifi_init (struct workifi_state *workifi)
 {
         initialize_logger();
-        workifi->server_url = "https://api.workiom.com";
 
         curl_global_init(CURL_GLOBAL_ALL);
         workifi->http_session = curl_easy_init();
