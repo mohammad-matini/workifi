@@ -11,6 +11,8 @@ struct workifi_state {
         const char *api_endpoint_data;
         const char *api_endpoint_file;
         const char *api_endpoint_update;
+        const char *api_endpoint_get_upload_url;
+        const char *api_endpoint_confirm_upload;
 
         const char *tenant;
         const char *username;

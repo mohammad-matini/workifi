@@ -205,3 +205,21 @@ int _wopen_hack(const char *file, int oflags, ...)
         return handle;
 }
 #endif
+
+struct workifi_string
+workifi_string_fmt(char const *fmt, ...)
+{
+        struct workifi_string s;
+        va_list ap;
+
+        va_start(ap, fmt);
+        s.len = vsnprintf(NULL, 0, fmt, ap) + 1;
+        va_end(ap);
+
+        va_start(ap, fmt);
+        s.ptr = calloc(s.len, sizeof(char));
+        vsnprintf(s.ptr, s.len, fmt, ap);
+        va_end(ap);
+
+        return s;
+}

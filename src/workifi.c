@@ -122,6 +122,10 @@ int workifi_parse_server_config (
                 json_object_object_get(config_json, "file-url"));
         workifi->api_endpoint_update = json_object_get_string(
                 json_object_object_get(config_json, "update-url"));
+        workifi->api_endpoint_get_upload_url = json_object_get_string(
+                json_object_object_get(config_json, "get-upload-url"));
+        workifi->api_endpoint_confirm_upload = json_object_get_string(
+                json_object_object_get(config_json, "confirm-upload"));
 
         return 0;
 }
@@ -227,8 +231,21 @@ int workifi_process_files(struct workifi_state *workifi)
                         continue;
                 }
 
+                struct json_object *upload_url_metadata =
+                    workifi_get_file_upload_url(workifi, file_name);
+
+                const char *upload_url = json_object_get_string(
+                        json_object_object_get(upload_url_metadata,
+                            "fileUrl"));
+
+                const char *file_token = json_object_get_string(
+                        json_object_object_get(upload_url_metadata,
+                            "fileToken"));
+
+                workifi_upload_file(workifi, file_path, upload_url);
+
                 struct json_object *uploaded_file_raw_metadata =
-                        workifi_upload_file(workifi, file_path);
+                        workifi_confirm_file_upload(workifi, file_token);
 
                 if (!uploaded_file_raw_metadata) {
                         writelog("ERROR: Could not read file for upload! "

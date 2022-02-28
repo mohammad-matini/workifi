@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -176,35 +178,129 @@ struct json_object *workifi_find_record(struct workifi_state *workifi,
 }
 
 
-struct json_object *workifi_upload_file(struct workifi_state *workifi,
-                                        const char *file_path)
+void workifi_upload_file(
+        struct workifi_state *workifi,
+        const char *file_path,
+        const char *url)
 {
-        struct curl_slist *headers = NULL;
-        struct workifi_response res;
         struct workifi_file file;
 
         file.path = file_path;
         file.file = fopen(file.path, "rb");
-        if (!file.file) return NULL;
+        if (!file.file) goto file_not_found;
 
         file.file_handle = fileno(file.file);
         fstat(file.file_handle, &file.file_info);
 
+        CURLcode curl_code;
+        CURL *curl = workifi->http_session;
+
+        struct workifi_string content_type_wstr =
+                workifi_string_fmt("Content-Type: %s",
+                                workifi_mime_content_type(file.path));
+
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, content_type_wstr.ptr);
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, workifi_curl_write_cb);
+        curl_easy_setopt(curl, CURLOPT_READFUNCTION, workifi_curl_file_read_cb);
+        curl_easy_setopt(curl, CURLOPT_READDATA, &file);
+
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
+        curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+        curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L); // implies PUT
+
+        curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                         (curl_off_t)file.file_info.st_size);
+
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION,
+                         workifi_xferinfo_download_progress);
+
+        curl_code = curl_easy_perform(curl);
+
+        if (curl_code != CURLE_OK) goto connection_failed;
+
+        long response_code;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+        if (response_code != 200) goto request_error;
+
+        curl_easy_reset(curl);
+        curl_slist_free_all(headers);
+        free_workifi_string(&content_type_wstr);
+        fclose(file.file);
+
+        return;
+
+connection_failed: {
+                writelog("file upload: connection failed: %s\n",
+                        curl_easy_strerror(curl_code));
+                exit(EXIT_FAILURE);
+        }
+request_error: {
+                writelog("file upload: request failed \n"
+                         "status-code: %ld \n",
+                         response_code);
+                exit(EXIT_FAILURE);
+        }
+file_not_found: {
+                writelog("file upload: file not found on disk!: %s\n",
+                        file_path);
+                exit(EXIT_FAILURE);
+        }
+}
+
+
+struct json_object *workifi_get_file_upload_url(
+        struct workifi_state *workifi,
+        const char *filename)
+{
+        struct curl_slist *headers = NULL;
         headers = curl_slist_append(headers, "Accept: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json");
         headers = curl_slist_append(headers, workifi->auth_header);
 
-        workifi_http_post_file(workifi, &res,
-                               workifi->api_endpoint_file,
-                               headers, &file);
+        struct workifi_string post_body_wstr =
+                workifi_string_fmt("{\"fileName\": \"%s\"}",
+                        filename);
+
+        struct workifi_response res;
+        workifi_http_post(workifi, &res,
+                          workifi->api_endpoint_get_upload_url,
+                          headers, post_body_wstr.ptr);
 
         curl_slist_free_all(headers);
-        fclose(file.file);
-        headers = NULL;
+        free_workifi_string(&post_body_wstr);
 
-        return array_list_get_idx(
-                json_object_get_array(
-                        json_object_object_get(
-                                res.body, "result")), 0);
+        return json_object_object_get(res.body, "result");
+}
+
+
+struct json_object *workifi_confirm_file_upload(
+        struct workifi_state *workifi,
+        const char *file_token)
+{
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        headers = curl_slist_append(headers, workifi->auth_header);
+
+        struct workifi_string post_body_wstr =
+                workifi_string_fmt("{\"fileToken\": \"%s\"}",
+                        file_token);
+
+        struct workifi_response res;
+        workifi_http_post(workifi, &res,
+                          workifi->api_endpoint_confirm_upload,
+                          headers, post_body_wstr.ptr);
+
+        curl_slist_free_all(headers);
+        free_workifi_string(&post_body_wstr);
+
+        return json_object_object_get(res.body, "result");
 }
 
 
@@ -259,91 +355,6 @@ request_error: {
                 exit(EXIT_FAILURE);
         }
 }
-
-
-int workifi_http_post_file(
-        struct workifi_state *workifi,
-        struct workifi_response *res,
-        const char *url,
-        struct curl_slist *headers,
-        struct workifi_file *file)
-{
-        CURLcode curl_code;
-        CURL *curl = workifi->http_session;
-        curl_mime *mime;
-        curl_mimepart *part;
-
-        struct workifi_string response_body;
-
-        init_workifi_string(&response_body);
-
-        mime = NULL;
-        mime = curl_mime_init(curl);
-
-        part = curl_mime_addpart(mime);
-
-        curl_mime_data_cb(
-                part, (curl_off_t)file->file_info.st_size,
-                workifi_curl_file_read_cb,
-                workifi_curl_file_seek_cb,
-                NULL, file);
-
-        curl_mime_name(part, "upload");
-        curl_mime_filename(part, basename( (char *) file->path));
-        curl_mime_type(part, workifi_mime_content_type(file->path));
-
-        curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
-                         workifi_curl_write_cb);
-
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
-        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
-        curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
-
-        curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                         (curl_off_t)file->file_info.st_size);
-
-        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION,
-                         workifi_xferinfo_download_progress);
-
-        curl_code = curl_easy_perform(curl);
-
-        if(curl_code != CURLE_OK) goto connection_failed;
-
-        long response_code;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-        if (response_code != 200) goto request_error;
-
-        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &res->status);
-        res->body = json_tokener_parse(response_body.ptr);
-
-        free_workifi_string(&response_body);
-
-        curl_mime_free(mime);
-        mime = NULL;
-        curl_easy_reset(curl);
-
-        return (int)curl_code;
-
-connection_failed: {
-                writelog("file upload: connection failed: %s\n",
-                        curl_easy_strerror(curl_code));
-                exit(EXIT_FAILURE);
-        }
-request_error: {
-                writelog("file upload: request failed \n "
-                         "status-code: %ld \n "
-                         "response-body: %s\n",
-                         response_code, response_body.ptr);
-                exit(EXIT_FAILURE);
-        }
-}
-
 
 int workifi_http_put(struct workifi_state *workifi,
                      struct workifi_response *res,

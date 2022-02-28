@@ -50,6 +50,7 @@ struct workifi_file {
 
 void init_workifi_string(struct workifi_string *s);
 void free_workifi_string(struct workifi_string *s);
+struct workifi_string workifi_string_fmt(char const *fmt, ...);
 
 int workifi_xferinfo_download_progress(
         void *p,
