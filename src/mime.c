@@ -991,19 +991,19 @@ static const struct workifi_content_type ctts[] = {
         {".ice", "x-conference/x-cooltalk"}
 };
 
+static int ctts_length = sizeof(ctts) / sizeof(ctts[0]);
+
 const char *workifi_mime_content_type(const char *filename)
 {
         if (!filename) return NULL;
-
         size_t filename_length = strlen(filename);
-        const char *nameend = filename + filename_length;
-        int ctts_length = sizeof(ctts) / sizeof(ctts[0]);
 
         for(int i = 0; i < ctts_length; i++) {
                 size_t extension_length = strlen(ctts[i].extension);
                 if(filename_length >= extension_length) {
-                        const char *extension = nameend - extension_length;
-                        if (strcasecmp(extension, ctts[i].extension) == 0) {
+                        const char *name_end = filename + filename_length;
+                        const char *extension = name_end - extension_length;
+                        if (strncasecmp(extension, ctts[i].extension, extension_length) == 0) {
                                 return ctts[i].type;
                         }
                 }
