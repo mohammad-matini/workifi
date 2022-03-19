@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
+#include <inttypes.h>
 #include <curl/curl.h>
 
 #include "utils.h"
@@ -49,9 +50,9 @@ int workifi_xferinfo_download_progress(
                 animation_loop_counter + 1;
 
         fprintf(stderr,
-                "  Progress: %"LONG_FORMAT"%%  :"
-                ":  uploaded %"LONG_FORMAT" MiB out of "
-                "%"LONG_FORMAT" MiB\r",
+                "  Progress: %"PRIi64"%%  :"
+                ":  uploaded %"PRIi64" MiB out of "
+                "%"PRIi64" MiB\r",
                 ultotal <= 0 ? 0 : ((ulnow * 100) / ultotal),
                 (ulnow / (1024*1024)), ultotal / (1024*1024));
 

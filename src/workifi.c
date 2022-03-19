@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include <json-c/json.h>
 #include <curl/curl.h>
 
@@ -23,7 +24,7 @@ int main ()
 
         workifi_init(&workifi);
 
-        writelog("\nFound %"LONG_FORMAT" records to upload\n\n",
+        writelog("\nFound %"PRIi64" records to upload\n\n",
                array_list_length(workifi.file_list));
 
         if (!workifi_user_approves_config(&workifi)) {
@@ -202,7 +203,7 @@ int workifi_process_files(struct workifi_state *workifi)
 
                 writelog(WORKIFI_SEPERATOR);
 
-                writelog("Record Number: %"LONG_FORMAT"\n"
+                writelog("Record Number: %"PRIi64"\n"
                        "Record Name: %s\n"
                        "File Name: %s\n"
                        "Uploading...\n",

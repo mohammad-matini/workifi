@@ -10,15 +10,12 @@
 #endif
 
 #ifdef _WIN32
-#define LONG_FORMAT "I64d"
 #define fopen _wfopen_hack
 #define open _wopen_hack
 
 __declspec( dllexport ) FILE *_wfopen_hack(const char *file, const char *mode);
 __declspec( dllexport ) int _wopen_hack(const char *file, int oflags, ...);
 
-#else
-#define LONG_FORMAT "ld"
 #endif
 
 #define WORKIFI_GREETING                                                \
