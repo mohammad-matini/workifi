@@ -126,7 +126,7 @@ int workifi_parse_server_config (
         workifi->api_endpoint_get_upload_url = json_object_get_string(
                 json_object_object_get(config_json, "get-upload-url"));
         workifi->api_endpoint_confirm_upload = json_object_get_string(
-                json_object_object_get(config_json, "confirm-upload"));
+                json_object_object_get(config_json, "confirm-upload-url"));
 
         return 0;
 }
