@@ -11,17 +11,24 @@ export CPPFLAGS="-DCURL_STATICLIB"
 DISTDIR=build/workifi/
 
 echo building workifi...
-./autogen.sh && ./configure && make
+./autogen.sh 
+./configure 
+make
 
 echo building package...
-rm -rf $DISTDIR && mkdir -p $DISTDIR
-cp workifi $DISTDIR && cp etc/*.json $DISTDIR
-mkdir -p $DISTDIR/logs && mkdir -p $DISTDIR/files
+rm -rf $DISTDIR 
+mkdir -p $DISTDIR
+mkdir -p $DISTDIR/logs 
+mkdir -p $DISTDIR/files
+
 echo "test file 01" > $DISTDIR/files/test-file-1
 echo "test file 02" > $DISTDIR/files/test-file-2
 
+cp workifi.exe $DISTDIR 
+cp etc/*.json $DISTDIR
 cp contrib/workifi.bat $DISTDIR
-cp workifi.exe $DISTDIR
 
-cd build && zip -r ../mingw-w64-x86_64-workifi.zip workifi/
-cd ../ && rm -rf build
+cd build 
+zip -r ../mingw-w64-x86_64-workifi.zip workifi/
+cd ../ 
+rm -rf build
