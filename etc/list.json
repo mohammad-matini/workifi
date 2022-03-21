@@ -1,0 +1,10 @@
+[
+    {
+        "record_name": "record-name-1",
+        "file_path": "test-file-1"
+    },
+    {
+        "record_name": "record-name-2",
+        "file_path": "test-file-2"
+    }
+]

@@ -1,0 +1,9 @@
+{
+    "tenant": "my-company",
+    "username": "admin",
+    "password": "my-secret-password",
+
+    "list-id": "9f469935-fc47-4a4b-aeda-a20337c61742",
+    "name-field-id": "196232",
+    "file-field-id": "196233"
+}

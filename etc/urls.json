@@ -1,0 +1,10 @@
+{
+    "base-url":           "https://api.workiom.com",
+    "auth-url":           "https://api.workiom.com/api/TokenAuth/Authenticate",
+    "data-url":           "https://api.workiom.com/api/services/app/Data/All",
+    "file-url":           "https://api.workiom.com/File/Upload",
+    "update-url":         "https://api.workiom.com/api/services/app/Data/UpdatePartial",
+    "get-upload-url":     "https://api.workiom.com/File/GetExternalUploadURL",
+    "confirm-upload-url": "https://api.workiom.com/File/ConfirmExternalUpload"
+}
+
