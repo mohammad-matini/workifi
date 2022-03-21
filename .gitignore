@@ -26,4 +26,6 @@ stamp-h1
 workifi
 workifi.exe
 build/
-mingw-w64-x86_64-workifi.zip
+*.zip
+*.tar
+*.tar.*
