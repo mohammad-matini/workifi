@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([workifi], [1.0.0], [])
+AC_INIT([workifi], [2.0.0], [])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_CONFIG_SRCDIR([src/workifi.c])
 AC_CONFIG_HEADERS([config.h])
