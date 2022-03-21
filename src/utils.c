@@ -162,7 +162,7 @@ void writelog(char const *fmt, ...) {
         va_end(ap);
         va_start(ap, fmt);
         vfprintf(log_file, fmt, ap);
-        fflush(log_file);
+        fflush(NULL);
         va_end(ap);
 }
 
