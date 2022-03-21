@@ -1,0 +1,22 @@
+New in ?.?.?:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New in 2.0.0:
+
+* New features added
+
+  - Remove limits on file upload size for tenants with custom S3 storage,
+    by using Workiom's new external-upload API. This release does not 
+    support tenants without custom storage; if you have such a tenant use
+    version 1.0.0 instead until support is re-added in future versions.
+
+* Miscellaneous changes
+
+  - Remove autotools auto-generated files, and added autogen.sh instead.
+  - Add example config files & helper build scripts for MinGW & GNU/Linux.
+  - Various minor changes & code improvements.
+
+New in 1.0.0:
+
+* Initial release of Workifi

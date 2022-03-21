@@ -1,0 +1,83 @@
+------------------------------------------------------------------------------
+WORKIFI:
+
+Workifi is a simple program to automate attachment file uploads to Workiom.
+Provide it with your credentials & upload details in `config.json', a list of
+files to upload and the record names you want to upload them to in
+`list.json', then run `workifi' and off you go.
+
+------------------------------------------------------------------------------
+LIMITATIONS:
+
+Note that version 2.0.0 only supports tenants with custom S3 storage enabled.
+If you have a normal tenant, then please use version 1.0.0 instead.
+
+------------------------------------------------------------------------------
+DOWNLOAD:
+
+You can download binary packages of Workifi for GNU/Linux or Windows from the
+GitHub releases page (https://github.com/workiom/workifi/releases).
+
+------------------------------------------------------------------------------
+RUNTIME DEPENDENCIES:
+
+  * WINDOWS: If you download and use the binary release for Windows, then
+    there's no dependencies to worry about; the release is built statically.
+
+  * GNU/Linux: Using the pre-built binary releases on GNU/Linux requires
+    having the libcurl and json-c shared libraries installed; the build is
+    dynamically linked. The install instructions can change depending on your
+    GNU/Linux distribution of course.
+
+------------------------------------------------------------------------------
+BUILDING FROM SOURCE:
+
+To build Workifi from the source distribution you will need the development
+headers for libcurl and json-c installed (depending on your distribution, they
+can be included in the library packages, or separately in -dev packages). You
+can then use the usual `./configure && make && make install' to build Workifi.
+
+To build on Windows you will need those libraries built for MinGW. The easiest
+way to get them is installing MSYS2 and then using its package manager.
+
+You can use the helper scripts in `/contrib' for building binary packages.
+
+If you want to build Workifi statically, you will need the dependencies be
+compiled as static libraries. You can download them and compile them yourself
+for further customisation. Workifi for Windows was built and tested with
+`curl-7.82.0' and `json-c-json-c-0.13.1-20180305'.
+
+To build a minimal libcurl, appropriate for Workifi static linking, you can
+configure libcurl as follows:
+
+    ./configure --disable-libcurl-option --disable-verbose --disable-alt-svc \
+                --disable-mqtt --disable-file --disable-debug --disable-ftp \
+                --disable-ldap --disable-ldaps --disable-rtsp --disable-proxy \
+                --disable-dict --disable-telnet --disable-tftp --disable-pop3 \
+                --disable-imap --disable-smb --disable-smtp --disable-gopher \
+                --disable-manual --disable-ipv6 --disable-sspi \
+                --disable-crypto-auth --disable-ntlm-wb --disable-tls-srp \
+                --without-nghttp2 --without-libidn2 --without-libssh2 \
+                --without-brotli --disable-shared --enable-static \
+                --without-nghttp2 --disable-ldap --disable-ldaps \
+                --disable-rtsp --with-schannel --without-ssl --with-zlib \
+                CFLAGS="-static" CPPFLAGS="-DCURL_STATIC"
+
+------------------------------------------------------------------------------
+LICENSE:
+
+    Copyright (C) 2022 Workiom Inc.
+    
+    Workifi is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    Workifi is distributed in the hope that it will be useful, 
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see
+    <https://www.gnu.org/licenses/>.
