@@ -243,12 +243,7 @@ int workifi_process_files(struct workifi_state *workifi)
                         json_object_object_get(upload_url_metadata,
                             "fileToken"));
 
-                workifi_upload_file(workifi, file_path, upload_url);
-
-                struct json_object *uploaded_file_raw_metadata =
-                        workifi_confirm_file_upload(workifi, file_token);
-
-                if (!uploaded_file_raw_metadata) {
+                if (workifi_upload_file(workifi, file_path, upload_url) < 0) {
                         writelog("ERROR: Could not read file for upload! "
                                  "Check the file name, and make\nsure that it "
                                  "can be opened.\n",
@@ -256,6 +251,9 @@ int workifi_process_files(struct workifi_state *workifi)
                         free(file_path);
                         continue;
                 }
+
+                struct json_object *uploaded_file_raw_metadata =
+                        workifi_confirm_file_upload(workifi, file_token);
 
                 struct json_object *uploaded_file_metadata =
                         format_file_metadata(uploaded_file_raw_metadata);

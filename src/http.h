@@ -21,7 +21,7 @@ struct json_object *workifi_find_record(
         struct workifi_state *workifi,
         const char *record_name);
 
-void workifi_upload_file(
+int workifi_upload_file(
         struct workifi_state *workifi,
         const char *file_path,
         const char *url);

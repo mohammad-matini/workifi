@@ -178,7 +178,7 @@ struct json_object *workifi_find_record(struct workifi_state *workifi,
 }
 
 
-void workifi_upload_file(
+int workifi_upload_file(
         struct workifi_state *workifi,
         const char *file_path,
         const char *url)
@@ -187,7 +187,7 @@ void workifi_upload_file(
 
         file.path = file_path;
         file.file = fopen(file.path, "rb");
-        if (!file.file) goto file_not_found;
+        if (!file.file) return -1;
 
         file.file_handle = fileno(file.file);
         fstat(file.file_handle, &file.file_info);
@@ -233,7 +233,7 @@ void workifi_upload_file(
         free_workifi_string(&content_type_wstr);
         fclose(file.file);
 
-        return;
+        return 0;
 
 connection_failed: {
                 writelog("file upload: connection failed: %s\n",
@@ -244,11 +244,6 @@ request_error: {
                 writelog("file upload: request failed \n"
                          "status-code: %ld \n",
                          response_code);
-                exit(EXIT_FAILURE);
-        }
-file_not_found: {
-                writelog("file upload: file not found on disk!: %s\n",
-                        file_path);
                 exit(EXIT_FAILURE);
         }
 }
