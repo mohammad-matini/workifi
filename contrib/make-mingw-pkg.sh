@@ -11,7 +11,7 @@ export CPPFLAGS="-DCURL_STATICLIB"
 DISTDIR=build/workifi/
 
 echo building workifi...
-./autogen.sh 
+autoreconf --install
 ./configure 
 make
 

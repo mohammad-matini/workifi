@@ -11,7 +11,7 @@ export LDFLAGS="-Wl,-z,defs -Wl,-z,now -Wl,-z,relro"
 DISTDIR=build/workifi/
 
 echo building workifi...
-./autogen.sh 
+autoreconf --install
 ./configure 
 make
 
