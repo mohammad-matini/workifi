@@ -3,6 +3,11 @@
 set -e
 trap exit INT
 
+grep -q 'AC_INIT(\[workifi\]' configure.ac || (echo && \
+    echo "  Cannot find Workifi's configure.ac file," && \
+    echo "  Please run this script from the root folder" && \
+    echo "  of Workifi's source" && echo && exit 1)
+
 # We use mxe to setup a mingw cross-compilation environment
 HOST=x86_64-w64-mingw32.static
 

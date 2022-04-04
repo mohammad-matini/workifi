@@ -1,5 +1,7 @@
 2022-04-04  Mohammad Matini  <mohammad.matini@outlook.com>
 
+	Add directory checks to release & build scripts
+
 	Add release script; auto-generates all packages & dists.
 
 	Add MinGW cross-compiling script, minor build script improvements.

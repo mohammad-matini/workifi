@@ -2,6 +2,11 @@
 set -e
 trap exit INT
 
+grep -q 'AC_INIT(\[workifi\]' configure.ac || (echo && \
+    echo "  Cannot find Workifi's configure.ac file," && \
+    echo "  Please run this script from the root folder" && \
+    echo "  of Workifi's source" && echo && exit 1)
+
 CFLAGS="-s -O3 -pipe -D_FORTIFY_SOURCE=2 -fstack-clash-protection \
         -fcf-protection=full -pie -fpie -fpic -fasynchronous-unwind-tables \
         -fstack-protector-strong -Wall -pedantic -std=c99"
