@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([workifi], [2.0.0], [])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
+AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AC_CONFIG_SRCDIR([src/workifi.c])
 AC_CONFIG_HEADERS([config.h])
 

@@ -1,0 +1,133 @@
+2022-04-04  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Add release script; auto-generates all packages & dists.
+
+	Add MinGW cross-compiling script, minor build script improvements.
+
+	Use pkg-config configure macros for library checks.
+		This simplifies the build configuration a lot, and makes it
+		easier to build for other platforms, like Windows, without
+		having to specify linked libraries manually like we were doing
+		before.
+
+	Remove the autogen.sh script, it is unnecessary.
+		Scripts in contrib/ can now call autoreconf internally instead.
+
+2022-04-03  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Prevent crashes if a file could not be opened.
+		If not found, no premission, or any other reason.  Instead, we
+		now continue to the next file in the upload queue.  This was the
+		case in version 1.0.0, but we had a regression in version 2.0.0.
+
+2022-03-22  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Add distribution archives to .gitignore.
+
+	Added README, NEWS, AUTHORS, and COPYING files.
+
+2022-03-21  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Flush stdout in addition to flushing the logs on writelog.
+
+	Add script to build workifi on GNU/Linux as dynamic executable.
+
+	Add example config files, script to build on Windows using MinGW.
+		The script builds a static version of workifi for Windows using
+		MinGW.  Note that this is intended for compilation on Windows,
+		and not for cross-compiling from a GNU/Linux system.
+
+2022-03-19  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Fix minor error in URL configuration key.
+
+	Replace win-specific I64 format strings with standard PRIi64.
+
+2022-02-28  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	mime.c: Include strings.h to get strncasecmp()
+		strings.h and string.h are different headers. We get implicit
+		declaration warnings because strncasecmp() belongs to the first.
+
+	mime.c: Use safer comparison, statically size array.
+		The mime array size doesn't need to be calculated on every
+		function call, it is a static value that does not change. Also,
+		use the safer variant of the case-insensitive string comparison
+		function.
+
+	Use new Workiom direct external upload API.
+		To avoid limits on file upload size for tenants with custom S3
+		storage.
+
+2022-02-22  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Get base API URL from URLs config: file.
+		instead of hard-coded value.
+
+2022-02-21  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Remove various generated autotools build files.
+		Those files can be be re-built with ./autogen.sh.
+
+2020-08-19  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Fix typo in a header guard.
+
+2020-07-07  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Added some missing newlines.
+
+2020-03-15  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Fix some minor memory leaks found by valgrind.
+
+2020-03-12  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Check for empty user config values before running.
+
+2020-03-11  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Windows can not create files with colons in their names, *sigh*
+
+2020-03-12  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Some minor refactoring, an attempt to solve Windows heap corruption.
+
+2020-03-11  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Some minor refactoring, an attempt to solve Windows heap corruption.
+
+	Use local-time to name logs instead of UTC.
+
+	Fix time formatting on Windows.
+		Although the docs say otherwise, it seems like %F and %T are not
+		working on Windows. Used their equivalents.
+
+	Minor tweak to the loading animation.
+		Having the carriage-return at the end of every frame allows the
+		"upload successful" message to appear on top of the loading bar
+		on Windows (On Linux, the end message replaced the loader
+		without any changes... oh well).
+
+	Support missing directory creation on Windows.
+
+	Some refactoring for better error handling, added a greeter.
+
+	Added file-based logging support.
+
+2020-03-10  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Fix file access on Windows.
+
+	Workaround CURL's lack of support for Windows UTF-16 filenames.
+		By manually reading file data to CURL using `curl_mime_data_cb`.
+
+	Various autotools changes for better Windows support.
+
+2020-03-08  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	Rename field_id config from record `code` to record `name`
+
+2020-03-07  Mohammad Matini  <mohammad.matini@outlook.com>
+
+	initial commit.
