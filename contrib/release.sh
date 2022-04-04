@@ -22,3 +22,7 @@ sha512sum -- linux-pc-x86_64-workifi-*.tar.gz \
     mingw-w64-x86_64-workifi-*.zip \
     workifi-*.tar.gz workifi-*.zip \
     > SHA2-512SUMS
+
+rm -rf release
+mkdir release
+mv -- *.zip *.tar* SHA2-* release/

@@ -1,6 +1,8 @@
 2022-04-04  Mohammad Matini  <mohammad.matini@outlook.com>
 
-	Add directory checks to release & build scripts
+	Put release script artifacts in a release/ directory.
+
+	Add directory checks to release & build scripts.
 
 	Add release script; auto-generates all packages & dists.
 
