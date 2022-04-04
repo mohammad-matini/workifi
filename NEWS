@@ -1,11 +1,20 @@
 New in ?.?.?:
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New in 2.0.1:
+
+* Bug fixes
+
   - Prevent crashes if a file could not be opened (not found, or no
     premission, or any other reason).  Instead, we continue to the next
-    file in the upload queue. This was the case in version 1.0.0, but
-    we had a regression in version 2.0.0.
+    file in the upload queue. This was the case in version 1.0.0, but we
+    had a regression in version 2.0.0.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Miscellaneous changes
+
+  - Additional improvements to the build system, this streamlines the
+    release process, and makes it easier to cross-compile to Windows.
 
 New in 2.0.0:
 
